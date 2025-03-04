@@ -1,3 +1,4 @@
+
 import PropTypes from 'prop-types';
 
 const ingredient = {
@@ -12,6 +13,7 @@ const ingredient = {
 	calories: PropTypes.number.isRequired,
 	carbohydrates: PropTypes.number.isRequired,
 	fat: PropTypes.number.isRequired,
+	id: PropTypes.string,
 };
 
 const order = {
