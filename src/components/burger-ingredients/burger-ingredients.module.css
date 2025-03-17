@@ -1,6 +1,5 @@
+
 .wrapper {
-	/* flex: 1; */
-	/* max-width: 600px; */
 	flex-grow: 1;
 	flex-basis: 600px;
 	overflow: hidden;
@@ -11,12 +10,6 @@
 .heading {
 	display: block;
 }
-
-.container {
-    display: flex;
-    margin-bottom: 10px;
-}
-
 
 .tabContent {
 	display: block;

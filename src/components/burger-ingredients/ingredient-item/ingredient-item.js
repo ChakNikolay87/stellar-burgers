@@ -1,49 +1,80 @@
-import React, { useState } from 'react';
-import { Counter, CurrencyIcon } from '@ya.praktikum/react-developer-burger-ui-components';
-import { ingredientShape } from '../../../utils/propTypesShapes';
-import PropTypes from 'prop-types';
-import ingredientItem from './ingredient-item.module.css';
+import { useMemo } from "react";
+import {
+  Counter,
+  CurrencyIcon,
+} from "@ya.praktikum/react-developer-burger-ui-components";
+import { ingredientShape } from "../../../utils/propTypesShapes";
+import ingredientItem from "./ingredient-item.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { useDrag } from "react-dnd";
+import { openModal } from "../../../services/slices/modalSlice";
+import { v4 as uuidv4 } from "uuid";
 
-import Modal from '../../modal/modal';
-import IngredientDetails from '../ingredient-details/ingredient-details';
+const IngredientItem = ({ ingredient }) => {
+  const dispatch = useDispatch();
+  const { name, price, image } = ingredient;
 
-const IngredientItem = ({ ingredient, count }) => {
-	const [modalVisible, setModalVisible] = useState(false);
+  const [, dragRef] = useDrag({
+    type: ingredient.type === "bun" ? "bun" : "ingredient",
+    item: {
+      ...ingredient,
+    },
+  });
 
-	const { name, price, image } = ingredient;
+  const handleClick = () => {
+    dispatch(
+      openModal({
+        type: "INGREDIENT_DETAILS",
+        data: ingredient,
+        title: "Детали ингридиента",
+      })
+    );
+  };
 
-	const handleClick = () => {
-		setModalVisible(true);
-	};
+  const { constructorIngredients, bun } = useSelector((store) => {
+    return store.constructorStore;
+  });
 
-	const closeModal = () => {
-		setModalVisible(false);
-	};
+  const count = useMemo(() => {
+    if (ingredient.type === "bun") {
+      return bun?._id === ingredient._id ? 2 : 0;
+    } else {
+      return constructorIngredients.reduce(
+        (acc, item) => (item._id === ingredient._id ? ++acc : acc),
+        0
+      );
+    }
+  }, [ingredient, bun, constructorIngredients]);
 
-	return (
-		<>
-			<div className={`${ingredientItem.card} mb-8 pb-6`} onClick={handleClick}>
-				{count ? <Counter count={count} size="default" extraClass="m-1" /> : null}
-				<div className={ingredientItem.image}>
-					<img src={image} alt={name} />
-				</div>
-				<div className={`${ingredientItem.price} text text_type_digits-default m-1`}>
-					{price} <CurrencyIcon type="primary" />
-				</div>
-				<div className={`${ingredientItem.name} text text_type_main-default`}>{name}</div>
-			</div>
-			{modalVisible && (
-				<Modal modalTitle="Детали ингридиента" closeModal={closeModal}>
-					<IngredientDetails ingredient={ingredient} />
-				</Modal>
-			)}
-		</>
-	);
+  return (
+    <>
+      <div
+        className={`${ingredientItem.card} mb-8 pb-6`}
+        onClick={handleClick}
+        ref={dragRef}
+        key={uuidv4()}
+      >
+        {count ? (
+          <Counter count={count} size="default" extraClass="m-1" />
+        ) : null}
+        <div className={ingredientItem.image}>
+          <img src={image} alt={name} />
+        </div>
+        <div
+          className={`${ingredientItem.price} text text_type_digits-default m-1`}
+        >
+          {price} <CurrencyIcon type="primary" />
+        </div>
+        <div className={`${ingredientItem.name} text text_type_main-default`}>
+          {name}
+        </div>
+      </div>
+    </>
+  );
 };
 
 IngredientItem.propTypes = {
-	ingredient: ingredientShape.isRequired,
-	count: PropTypes.number,
+  ingredient: ingredientShape.isRequired,
 };
 
 export default IngredientItem;
