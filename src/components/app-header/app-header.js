@@ -4,25 +4,21 @@ import {
   ListIcon,
   ProfileIcon,
 } from "@ya.praktikum/react-developer-burger-ui-components";
-import PropTypes from "prop-types";
 import appHeader from "./app-header.module.css";
 import MenuItem from "../menu-item/menu-item";
+import { useSelector } from "react-redux";
 
-const AppHeader = ({ activeMenuItem, onMenuClick }) => {
+const AppHeader = () => {
+  const { user, isAuthChecked } = useSelector((store) => store.user);
+
   return (
     <header className={appHeader.header}>
       <div className={`${appHeader.container} pt-3 pb-3`}>
         <nav className={appHeader.navigation}>
+          <MenuItem href="/" text="Конструктор" iconComponent={BurgerIcon} />
           <MenuItem
-            text="Конструктор"
-            isActive={activeMenuItem === "Конструктор"}
-            handleClick={onMenuClick}
-            iconComponent={BurgerIcon}
-          />
-          <MenuItem
+            href="orders"
             text="Лента заказов"
-            isActive={activeMenuItem === "Лента заказов"}
-            handleClick={onMenuClick}
             iconComponent={ListIcon}
           />
         </nav>
@@ -31,21 +27,17 @@ const AppHeader = ({ activeMenuItem, onMenuClick }) => {
         </div>
 
         <div className={appHeader.profileLink}>
-          <MenuItem
-            text="Личный кабинет"
-            isActive={activeMenuItem === "Личный кабинет"}
-            handleClick={onMenuClick}
-            iconComponent={ProfileIcon}
-          />
+          {isAuthChecked && (
+            <MenuItem
+              href="profile"
+              text={user?.name ? user.name : `Личный кабинет`}
+              iconComponent={ProfileIcon}
+            />
+          )}
         </div>
       </div>
     </header>
   );
-};
-
-AppHeader.propTypes = {
-  activeMenuItem: PropTypes.string.isRequired,
-  onMenuClick: PropTypes.func.isRequired,
 };
 
 export default AppHeader;

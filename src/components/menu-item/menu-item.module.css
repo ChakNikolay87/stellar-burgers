@@ -1,4 +1,3 @@
-
 .menuItem {
 	cursor: pointer;
 	display: inline-flex;
@@ -8,6 +7,7 @@
 	font-size: 16px;
 	color: #8585ad;
 	border-radius: 20px;
+	text-decoration: none;
 }
 
 .menuItemActive {

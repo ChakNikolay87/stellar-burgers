@@ -5,24 +5,37 @@ import {
   Button,
 } from "@ya.praktikum/react-developer-burger-ui-components";
 import styles from "./burger-constructor.module.css";
+import Modal from "../modal/modal";
 import DraggableConstructorElement from "./draggable-constructor-element/draggable-constructor-element";
 import DropTarget from "../drop-target/drop-target";
 import { useDispatch, useSelector } from "react-redux";
 import { getOrder } from "./../../services/slices/orderSlice";
-import { openModal } from "./../../services/slices/modalSlice";
-import { v4 as uuidv4 } from "uuid";
+import { openModal, closeModal } from "./../../services/slices/modalSlice";
+import { useNavigate } from "react-router-dom";
+import { Formik, Form } from "formik";
+import { resetConstructor } from "./../../services/slices/constructorSlice";
 
 const BurgerConstructor = (props) => {
   const dispatch = useDispatch();
-  const { constructorIngredients, bun } = useSelector((store) => {
-    return store.constructorStore;
-  });
+  const { constructorIngredients, bun } = useSelector(
+    (store) => store.constructorStore
+  );
+  const { user } = useSelector((store) => store.user);
+  const navigate = useNavigate();
 
   const handleClick = () => {
     if (bun && constructorIngredients.length > 0) {
-      dispatch(getOrder([bun, ...constructorIngredients, bun]));
-      dispatch(openModal({ type: "ORDER_DETAILS" }));
+      if (user) {
+        dispatch(getOrder([bun, ...constructorIngredients, bun]));
+        dispatch(openModal({ type: "ORDER_DETAILS" }));
+      } else {
+        navigate("/login");
+      }
     }
+  };
+
+  const handleModalClose = () => {
+    dispatch(closeModal());
   };
 
   const totalPrice = useMemo(() => {
@@ -35,12 +48,10 @@ const BurgerConstructor = (props) => {
     return totalPrice;
   }, [bun, constructorIngredients]);
 
-  const mainList = constructorIngredients.map((ingredient, index) => {
+  const mainList = constructorIngredients.map((ingredient) => {
     const { id } = ingredient;
     return (
-      <li className={styles.listItem} key={uuidv4()}>
-        {" "}
-        {/* Используем uuid для key */}
+      <li className={styles.listItem} key={id}>
         <DropTarget id={id}>
           <DraggableConstructorElement {...ingredient} />
         </DropTarget>
@@ -50,82 +61,112 @@ const BurgerConstructor = (props) => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.constructorIngredients}>
-        {bun ? (
-          <div className={`${styles.constructorElementWrapper}`}>
-            <DropTarget type="bun">
-              <ConstructorElement
-                type="top"
-                isLocked={true}
-                text={`${bun.name} (верх)`}
-                price={bun.price}
-                thumbnail={bun.image}
-                key={bun.id + "_0"}
-              />
-            </DropTarget>
-          </div>
-        ) : (
-          <DropTarget type="bun">
-            <div
-              className={styles.bunPlaceholder + " " + styles.bunPlaceholderTop}
-            >
-              Выберите булки
-            </div>
-          </DropTarget>
-        )}
+      <Formik
+        initialValues={{
+          constructorIngredients: constructorIngredients,
+          bun: bun,
+        }}
+        onSubmit={(values, { resetForm }) => {
+          handleClick();
+          resetForm({
+            values: {
+              constructorIngredients: [],
+              bun: null,
+            },
+          });
 
-        <ul className={styles.list}>
-          {mainList.length ? (
-            mainList
-          ) : (
-            <li className={styles.listItem}>
-              <DropTarget id={0}>
-                <div className={styles.mainPlaceholder}>Выберите начинку</div>
-              </DropTarget>
-            </li>
-          )}
-        </ul>
+          dispatch(resetConstructor());
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <div className={styles.constructorIngredients}>
+              {bun ? (
+                <div className={`${styles.constructorElementWrapper}`}>
+                  <DropTarget type="bun">
+                    <ConstructorElement
+                      type="top"
+                      isLocked={true}
+                      text={`${bun.name} (верх)`}
+                      price={bun.price}
+                      thumbnail={bun.image}
+                      key={bun.id + "_0"}
+                    />
+                  </DropTarget>
+                </div>
+              ) : (
+                <DropTarget type="bun">
+                  <div
+                    className={
+                      styles.bunPlaceholder + " " + styles.bunPlaceholderTop
+                    }
+                  >
+                    Выберите булки
+                  </div>
+                </DropTarget>
+              )}
 
-        {bun ? (
-          <div className={styles.constructorElementWrapper}>
-            <DropTarget type="bun">
-              <ConstructorElement
-                type="bottom"
-                isLocked={true}
-                text={`${bun.name} (низ)`}
-                price={bun.price}
-                thumbnail={bun.image}
-                key={bun.id + "_1"}
-              />
-            </DropTarget>
-          </div>
-        ) : (
-          <DropTarget type="bun">
-            <div
-              className={
-                styles.bunPlaceholder + " " + styles.bunPlaceholderBottom
-              }
-            >
-              Выберите булки
+              <ul className={styles.list}>
+                {mainList.length ? (
+                  mainList
+                ) : (
+                  <li className={styles.listItem}>
+                    <DropTarget id={0}>
+                      <div className={styles.mainPlaceholder}>
+                        Выберите начинку
+                      </div>
+                    </DropTarget>
+                  </li>
+                )}
+              </ul>
+
+              {bun ? (
+                <div className={styles.constructorElementWrapper}>
+                  <DropTarget type="bun">
+                    <ConstructorElement
+                      type="bottom"
+                      isLocked={true}
+                      text={`${bun.name} (низ)`}
+                      price={bun.price}
+                      thumbnail={bun.image}
+                      key={bun.id + "_1"}
+                    />
+                  </DropTarget>
+                </div>
+              ) : (
+                <DropTarget type="bun">
+                  <div
+                    className={
+                      styles.bunPlaceholder + " " + styles.bunPlaceholderBottom
+                    }
+                  >
+                    Выберите булки
+                  </div>
+                </DropTarget>
+              )}
             </div>
-          </DropTarget>
+
+            <div className={`${styles.orderSummary} mt-10`}>
+              <span
+                className={`${styles.orderTotal} digittext text_type_digits-medium`}
+              >
+                {totalPrice} <CurrencyIcon type="primary" />
+              </span>
+            </div>
+
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              disabled={isSubmitting}
+            >
+              Оформить заказ
+            </Button>
+          </Form>
         )}
-      </div>
-      <div className={`${styles.orderSummary} mt-10`}>
-        <span
-          className={`${styles.orderTotal} digittext text_type_digits-medium`}
-        >
-          {totalPrice} <CurrencyIcon />
-        </span>
-        <Button
-          htmlType="button"
-          type="primary"
-          size="medium"
-          onClick={handleClick}
-        >
-          Оформить заказ
-        </Button>
-      </div>
+      </Formik>
+
+      <Modal onClose={handleModalClose} />
     </div>
   );
 };

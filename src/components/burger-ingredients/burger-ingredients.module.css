@@ -1,4 +1,3 @@
-
 .wrapper {
 	flex-grow: 1;
 	flex-basis: 600px;
@@ -33,4 +32,11 @@
 .listItem {
 	max-width: 50%;
 	list-style: none;
+}
+.tabs {
+	display: flex;
+}
+.tabs > div {
+	flex: 1 1 auto;
+	min-width: auto;
 }
