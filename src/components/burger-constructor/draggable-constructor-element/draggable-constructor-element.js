@@ -19,7 +19,7 @@ const DraggableConstructorElement = (props) => {
   });
 
   return (
-    <div ref={dragRef} style={{ opacity: onDrag ? 0.4 : 1 }} key={id}>
+    <div ref={dragRef} style={{ opacity: onDrag ? 0.4 : 1 }}>
       <span className={styles.dragBtn}></span>
       <ConstructorElement
         text={name}
