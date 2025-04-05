@@ -1,27 +1,29 @@
 .menu {
-  list-style: none;
+	list-style: none;
 }
 
 .menuItem {
-  display: block;
-  text-decoration: none;
-  color: #8585ad;
-  transition: color 0.2s ease;
+	display: block;
+	text-decoration: none;
+	color: #8585ad;
+	transition: color 0.2s ease;
 }
 .menuItem:hover {
-  color: #fff;
+	color: #fff;
 }
 .menuItem.menuItemActive {
-  color: #fff;
+	color: #fff;
 }
 .container {
-  max-width: 1280px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  padding-top: 140px;
+	max-width: 1280px;
+	width: 100%;
+	margin: 0 auto;
+	display: flex;
+	padding-top: 140px;
 }
 .navWrapper {
-  margin-right: 60px;
-  max-width: 320px;
+	margin-right: 60px;
+	max-width: 320px;
+}
+.tabContentWrapper {
 }
