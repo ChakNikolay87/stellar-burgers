@@ -1,9 +1,9 @@
 .wrapper {
-  min-width: 480px;
-  text-align: center;
+	max-width: 480px;
+	/* margin: 200px auto 0; */
+	text-align: center;
 }
-
 .buttonGroup {
-  display: flex;
-  justify-content: space-evenly;
+	display: flex;
+	justify-content: space-evenly;
 }
