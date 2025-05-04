@@ -1,29 +1,32 @@
 import { RootState } from "../store";
-import {
-  ActionCreatorWithPayload,
-  ActionCreatorWithoutPayload,
-} from "@reduxjs/toolkit";
-import { Middleware } from "@reduxjs/toolkit";
+import { Action, ActionCreatorWithPayload, ActionCreatorWithoutPayload, AnyAction, Dispatch } from "@reduxjs/toolkit";
+import { Middleware } from '@reduxjs/toolkit'
+import { PayloadAction } from "@reduxjs/toolkit";
 import { refreshToken } from "../../utils/api";
 
+
+
+
 export type TwsActions = {
-  wsInit: ActionCreatorWithPayload<string | null>;
-  wsClose: ActionCreatorWithoutPayload;
-  wsSendMessage?: ActionCreatorWithPayload<any>;
-  onOpen: ActionCreatorWithoutPayload;
-  onClose: ActionCreatorWithoutPayload;
-  onError: ActionCreatorWithPayload<string>;
-  onMessage: ActionCreatorWithPayload<any>;
+	  wsInit: ActionCreatorWithPayload<string | null>;
+    wsClose: ActionCreatorWithoutPayload;
+    wsSendMessage?: ActionCreatorWithPayload<any>;
+    onOpen: ActionCreatorWithoutPayload;
+    onClose: ActionCreatorWithoutPayload;
+    onError: ActionCreatorWithPayload<string>;
+    onMessage: ActionCreatorWithPayload<any>;
 };
 
-export const socketMiddleware =
-  (
-    wsActions: TwsActions,
-    withTokenRefresh: boolean = false
-  ): Middleware<{}, RootState> =>
-  (store) => {
+
+
+
+
+export const socketMiddleware = (
+  wsActions: TwsActions,
+  withTokenRefresh: boolean = false 
+):  Middleware<{}, RootState> => (store) => {
     let socket: WebSocket | null = null;
-    let url: string | null = null;
+    let url: string | null = null; 
     let closing: boolean = false;
     const {
       wsInit,
@@ -35,7 +38,7 @@ export const socketMiddleware =
       onMessage,
     } = wsActions;
 
-    return (next) => (action: any) => {
+    return (next => (action: any) => {
       const { dispatch } = store;
       const { type, payload } = action;
 
@@ -55,10 +58,7 @@ export const socketMiddleware =
           const { data } = event;
           const parsedData = JSON.parse(data);
 
-          if (
-            withTokenRefresh &&
-            parsedData.message === "Invalid or missing token"
-          ) {
+          if (withTokenRefresh && parsedData.message === "Invalid or missing token") {
             refreshToken().then((refreshData) => {
               const wssUrl = new URL(url!);
               wssUrl.searchParams.set(
@@ -68,13 +68,13 @@ export const socketMiddleware =
               dispatch(wsInit(wssUrl.toString()));
             });
           } else {
-            dispatch(onMessage(parsedData));
+             dispatch(onMessage(parsedData));
           }
         };
 
         socket.onclose = (event) => {
-          console.log("closing", closing);
-
+          console.log('closing', closing);
+          
           if (closing) {
             dispatch(onClose());
           } else {
@@ -82,6 +82,7 @@ export const socketMiddleware =
           }
         };
       }
+
 
       if (wsClose && wsClose.match(action) && socket) {
         closing = true;
@@ -93,5 +94,6 @@ export const socketMiddleware =
       }
 
       next(action);
-    };
+    });
   };
+
