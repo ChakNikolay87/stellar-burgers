@@ -8,26 +8,27 @@ import styles from "./burger-constructor.module.css";
 import Modal from "../modal/modal";
 import DraggableConstructorElement from "./draggable-constructor-element/draggable-constructor-element";
 import DropTarget from "../drop-target/drop-target";
-import { useDispatch, useSelector } from "react-redux";
 import { getOrder } from "../../services/slices/orderSlice";
 import { openModal, closeModal } from "../../services/slices/modalSlice";
 import { useNavigate } from "react-router-dom";
 import { TIngredientWithID } from "../../services/types/data";
-import { Formik, Form } from "formik";
-import { resetConstructor } from "./../../services/slices/constructorSlice";
+import OrderDetails from "../order-details/order-details";
+import { useDispatch, useSelector } from "./../../services/store";
+import { Form, Formik } from "formik";
+import { resetConstructor } from "../../services/slices/constructorSlice";
 
 const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
-  const { constructorIngredients, bun } = useSelector((store: any) => {
+  const { constructorIngredients, bun } = useSelector((store) => {
     return store.constructorStore;
   });
-  const { user } = useSelector((store: any) => store.user);
+  const { user } = useSelector((store) => store.user);
+  const { type, isOpen } = useSelector((store) => store.modal);
   const navigate = useNavigate();
 
   const handleClick = () => {
     if (bun && constructorIngredients.length > 0) {
       if (user) {
-        // @ts-ignore
         dispatch(getOrder([bun, ...constructorIngredients, bun]));
         dispatch(openModal({ type: "ORDER_DETAILS" }));
       } else {
@@ -37,7 +38,6 @@ const BurgerConstructor: FC = () => {
   };
 
   const handleModalClose = () => {
-    // @ts-ignore
     dispatch(closeModal());
   };
 
@@ -173,7 +173,9 @@ const BurgerConstructor: FC = () => {
         )}
       </Formik>
 
-      <Modal onClose={handleModalClose} />
+      <Modal onClose={handleModalClose}>
+        <OrderDetails />{" "}
+      </Modal>
     </div>
   );
 };

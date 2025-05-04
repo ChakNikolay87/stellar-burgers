@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, FC } from "react";
 import { Tab } from "@ya.praktikum/react-developer-burger-ui-components";
 import IngredientsGroup from "./ingredients-group/ingredients-group";
 import styles from "./burger-ingredients.module.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "./../../services/store";
 import { TIngredientWithID } from "../../services/types/data";
 
 enum TABS {
@@ -15,9 +15,7 @@ const OFFSET = 50;
 
 const BurgerIngredients: FC = () => {
   const dispatch = useDispatch();
-  const ingredients = useSelector(
-    (store: any) => store.ingredients.ingredients
-  );
+  const ingredients = useSelector((store) => store.ingredients.ingredients);
   const [activeTab, setActiveTab] = useState<TABS | null>(null);
   const [isTabClicked, setTabClicked] = useState<boolean>(false);
 

@@ -6,7 +6,7 @@ import {
 } from "@ya.praktikum/react-developer-burger-ui-components";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import styles from "./reset-password.module.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "./../services/store";
 import { resetPassword } from "../services/slices/userSlice";
 
 const ResetPasswordPage: FC = () => {
@@ -16,7 +16,7 @@ const ResetPasswordPage: FC = () => {
   });
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const { isLoading, error, forgotPasswordSuccess } = useSelector(
-    (store: any) => store.user
+    (store) => store.user
   );
   const dispatch = useDispatch();
 
@@ -34,7 +34,6 @@ const ResetPasswordPage: FC = () => {
 
     setFormSubmitted(true);
 
-    // @ts-ignore
     const resultAction = await dispatch(resetPassword(formState));
     if (resetPassword.fulfilled.match(resultAction)) {
       navigate("/login", { replace: true });

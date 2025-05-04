@@ -1,7 +1,7 @@
-import { useEffect, FC } from "react";
+import React, { useEffect, FC } from "react";
 import styles from "./app.module.css";
 import AppHeader from "../app-header/app-header";
-import { useDispatch } from "react-redux";
+import { useDispatch } from "./../../services/store";
 import { getIngredients } from "../../services/slices/ingredientsSlice";
 import { closeModal } from "../../services/slices/modalSlice";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
@@ -20,11 +20,16 @@ import {
 import { OnlyAuth, OnlyUnAuth } from "../protected-route-element";
 import { checkUserAuth } from "../../services/slices/userSlice";
 import IngredientDetailsModal from "../Ingredient-details-modal";
+import FeedPage from "../../pages/feed";
+import OrderPage from "../../pages/order";
+import OrderDetailsModal, { OrderDetailsSource } from "../order-details-modal";
+import UserOrders from "../user-orders/user-orders";
+import UserOrderPage from "../../pages/user-order";
 
 const App: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch: any = useDispatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getIngredients());
@@ -32,7 +37,11 @@ const App: FC = () => {
   }, []);
 
   const handleIngredientsModalClose = () => {
-    // @ts-ignore
+    dispatch(closeModal());
+    navigate(-1);
+  };
+
+  const handleOrderDetailsModalClose = () => {
     dispatch(closeModal());
     navigate(-1);
   };
@@ -67,10 +76,15 @@ const App: FC = () => {
             element={<OnlyAuth element={<ProfilePage />} />}
           >
             <Route index element={<ProfileInfo />} />
-            <Route path="orders" element={<h1>История заказов:</h1>} />
-            <Route path="orders/:number" element={<span>soon™</span>} />
+            <Route path="orders" element={<UserOrders />} />
           </Route>
+          <Route
+            path="/profile/orders/:id"
+            element={<OnlyAuth element={<UserOrderPage />} />}
+          />
           <Route path={"/ingredients/:id"} element={<IngredientPage />} />
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/feed/:id" element={<OrderPage />} />
           <Route path="*" element={<Error404Page />} />
         </Routes>
       </main>
@@ -83,7 +97,29 @@ const App: FC = () => {
               <IngredientDetailsModal onClose={handleIngredientsModalClose} />
             }
           />
-          <Route path="/profile/orders/:number" element={<span>soon™</span>} />
+          <Route
+            path={"/feed/:id"}
+            element={
+              <OrderDetailsModal
+                onClose={handleOrderDetailsModalClose}
+                source={OrderDetailsSource.FEED}
+              />
+            }
+          />
+
+          <Route
+            path="/profile/orders/:id"
+            element={
+              <OnlyAuth
+                element={
+                  <OrderDetailsModal
+                    onClose={handleOrderDetailsModalClose}
+                    source={OrderDetailsSource.USER}
+                  />
+                }
+              />
+            }
+          />
         </Routes>
       )}
     </>

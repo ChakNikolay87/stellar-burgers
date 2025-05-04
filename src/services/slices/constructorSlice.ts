@@ -62,7 +62,6 @@ export const constructorSlice = createSlice({
         ...[...filteredItems].splice(newIndex),
       ];
     },
-
     resetConstructor: (state) => {
       state.bun = null;
       state.constructorIngredients = [];

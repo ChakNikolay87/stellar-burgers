@@ -1,6 +1,6 @@
-import { FC, useMemo } from "react";
+import React, { FC, useMemo } from "react";
 import IngredientDetails from "../components/burger-ingredients/ingredient-details/ingredient-details";
-import { useSelector } from "react-redux";
+import { useSelector } from "./../services/store";
 import { useParams } from "react-router-dom";
 import Error404Page from "./404";
 import Loader from "../components/loader";
@@ -11,7 +11,7 @@ const IngredientPage: FC = () => {
   const { id } = useParams();
 
   const { ingredients, isLoading, error } = useSelector(
-    (store: any) => store.ingredients
+    (store) => store.ingredients
   );
   const ingredient = useMemo(() => {
     return (ingredients as TIngredientWithID[]).filter(
@@ -22,11 +22,11 @@ const IngredientPage: FC = () => {
   return (
     <>
       {isLoading && <Loader />}
-      {error && `Произошла ошибка: ${error.message}`}
-      {!isLoading && !ingredient && !error && ingredients.length && (
+      {error && `Произошла ошибка: ${error}`}
+      {!isLoading && !ingredient && !error && ingredients.length > 0 && (
         <Error404Page />
       )}
-      {!isLoading && !error && ingredients.length && ingredient && (
+      {!isLoading && !error && ingredients.length > 0 && ingredient && (
         <div className={styles.container}>
           <div className={styles.box}>
             <IngredientDetails ingredient={ingredient} />

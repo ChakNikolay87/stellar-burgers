@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchUserData,
   loginRequest,
@@ -13,6 +13,7 @@ import {
   TLogoutResponse,
 } from "../../utils/api";
 import { deleteTokens } from "../../utils/utils";
+import { AppDispatch, RootState } from "../store";
 
 const initialState: UserState = {
   user: null,
@@ -42,7 +43,7 @@ const setFulfilled = (state: UserState) => {
 
 const setError = (state: UserState, action: any) => {
   state.isLoading = false;
-  state.error = action.payload ? action.payload : action.error?.message;
+  state.error = action.payload || action.error.message;
 };
 
 export const getUser = createAsyncThunk(
@@ -93,22 +94,27 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk<TLogoutResponse, undefined>(
-  "user/logout",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await logoutRequest();
-      deleteTokens();
-      return response;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
-      } else {
-        return rejectWithValue("An unknown error occurred");
-      }
+export const logout = createAsyncThunk<
+  TLogoutResponse,
+  undefined,
+  {
+    rejectValue: string;
+    state: RootState;
+    dispatch: AppDispatch;
+  }
+>("user/logout", async (_, { rejectWithValue }) => {
+  try {
+    const response = await logoutRequest();
+    deleteTokens();
+    return response;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    } else {
+      return rejectWithValue("An unknown error occurred");
     }
   }
-);
+});
 
 export const updateUser = createAsyncThunk(
   "user/updateUser",
@@ -201,11 +207,14 @@ export const userSlice = createSlice({
       })
       .addCase(getUser.rejected, setError)
       .addCase(registerUser.pending, setLoading)
-      .addCase(registerUser.fulfilled, (state, action) => {
-        setFulfilled(state);
-        state.isAuthChecked = true;
-        state.user = action.payload.user;
-      })
+      .addCase(
+        registerUser.fulfilled,
+        (state, action: PayloadAction<TRegisterUserResponse>) => {
+          setFulfilled(state);
+          state.isAuthChecked = true;
+          state.user = action.payload.user;
+        }
+      )
       .addCase(registerUser.rejected, setError)
       .addCase(updateUser.pending, setLoading)
       .addCase(updateUser.fulfilled, (state, action) => {
@@ -237,6 +246,12 @@ export const userSlice = createSlice({
       .addCase(resetPassword.rejected, setError);
   },
 });
+
+type TUserActionCreators = typeof userSlice.actions;
+
+export type TUserActions = ReturnType<
+  TUserActionCreators[keyof TUserActionCreators]
+>;
 
 export const { setUser, setAuthChecked } = userSlice.actions;
 export default userSlice.reducer;

@@ -1,9 +1,10 @@
-import { FC, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { FC, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import Modal from "./modal/modal";
 import { openModal } from "../services/slices/modalSlice";
-import { TIngredient } from "../services/types/data";
+import { TIngredientWithID } from "../services/types/data";
+import IngredientDetails from "./burger-ingredients/ingredient-details/ingredient-details";
+import { useDispatch, useSelector } from "./../services/store";
 
 interface IIngredientDetailsModalProps {
   onClose: () => void;
@@ -16,12 +17,12 @@ const IngredientDetailsModal: FC<IIngredientDetailsModalProps> = ({
   const { id } = useParams();
 
   const { ingredients, isLoading, error } = useSelector(
-    (store: any) => store.ingredients
+    (store) => store.ingredients
   );
   const ingredient = useMemo(() => {
     if (id) {
-      return (ingredients as TIngredient[]).filter(
-        (ingredient: TIngredient) => ingredient._id === id
+      return (ingredients as TIngredientWithID[]).filter(
+        (ingredient: TIngredientWithID) => ingredient._id === id
       )[0];
     }
   }, [ingredients, id]);
@@ -32,7 +33,6 @@ const IngredientDetailsModal: FC<IIngredientDetailsModalProps> = ({
       dispatch(
         openModal({
           type: "INGREDIENT_DETAILS",
-          data: ingredient,
           title: "Детали ингридиента",
         })
       );
@@ -43,7 +43,13 @@ const IngredientDetailsModal: FC<IIngredientDetailsModalProps> = ({
     return null;
   }
 
-  return <Modal onClose={onClose} />;
+  if (ingredient) {
+    return (
+      <Modal onClose={onClose}>
+        <IngredientDetails ingredient={ingredient} />
+      </Modal>
+    );
+  } else return null;
 };
 
 export default IngredientDetailsModal;
